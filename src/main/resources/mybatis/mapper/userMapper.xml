@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.os_be.dao.IUserDao">
+
+    <!--int searchUserByUserName(String userName);-->
+    <select id="searchUserByUserName" resultType="java.lang.Integer">
+        select count(*) as cnt from user where user_name = #{userName}
+    </select>
+
+    <!--int creteUser(User user);-->
+    <insert id="creteUser" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+        insert into user(user_name, password) values(#{userName}, #{password})
+    </insert>
+
+    <!--int login(User user);-->
+    <select id="login" parameterType="User" resultType="java.lang.Integer">
+        select id from user where user_name = #{userName} and password = #{password}
+    </select>
+</mapper>

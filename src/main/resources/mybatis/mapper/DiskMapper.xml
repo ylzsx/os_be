@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.os_be.dao.IDiskDao">
+
+    <!--public ArrayList<SwapTable> searchSwapByUFDId(int ufdId, int start, int end);-->
+    <select id="searchSwapByUFDId" resultType="SwapTable">
+        select * from swap_table where ufd_id = #{ufdId}
+        and file_order between #{start} and #{end}
+    </select>
+
+
+    <!--public ArrayList<DiskFirstIndex> searchCommonByUFDId(@Param("ufdId") int ufdId);-->
+    <resultMap id="MyDiskSecondIndex" type="DiskSecondIndex">
+        <id column="s_disk_id" property="sDiskId"/>
+        <result column="ufd_id" property="diskFirstIndex.udfId"/>
+        <result column="second_index_length" property="diskFirstIndex.secondIndexLength"/>
+    </resultMap>
+
+    <select id="searchCommonByUFDId" resultMap="MyDiskSecondIndex">
+        select f.f_disk_id, f.ufd_id, f.second_index_length,
+        s.s_disk_id, s.content, s.is_use_flag,s.file_order
+        from disk_first_index f, disk_second_index s
+        where f.ufd_id = #{ufdId} and f.f_disk_id = s.f_disk_id
+        order by file_order asc
+    </select>
+
+
+    <!--public int updateSwap(ArrayList<DiskSecondIndex>);-->
+    <!--<update id="updateSwap">-->
+        <!--updata from-->
+    <!--</update>-->
+
+    <!--public ArrayList<Integer> searchFreeDisk();-->
+    <select id="searchFreeDisk" resultType="java.lang.Integer">
+        select * from disk_second_index where is_use_flag = 0 order by s_disk_id asc
+    </select>
+
+    <!--public ArrayList<Integer> createFirstIndexTable(ArrayList<DiskFirstIndex> diskFirstIndices);-->
+    <insert id="createFirstIndexTable" parameterType="java.util.ArrayList"
+        useGeneratedKeys="true" keyProperty="fDiskId">
+        insert into disk_first_index(ufd_id, second_index_length) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.udfId}, #{item.secondIndexLength})
+        </foreach>
+    </insert>
+
+
+    <!--public int createSecondIndexTableBySId(ArrayList<DiskSecondIndex> diskSecondIndices);-->
+    <update id="createSecondIndexTableBySId" parameterType="java.util.ArrayList">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update disk_second_index
+            <set>
+                <if test="item.fDiskId!=0">
+                    f_disk_id = #{item.fDiskId},
+                </if>
+                <if test="item.content!=null and item.content!=''">
+                    content = #{item.content},
+                </if>
+                <if test="item.isUseFlag!=-1">
+                    is_use_flag = #{item.isUseFlag},
+                </if>
+                <if test="item.fileOrder!=0">
+                    file_order = #{item.fileOrder}
+                </if>
+            </set>
+            where s_disk_id = #{item.sDiskId}
+        </foreach>
+    </update>
+
+
+    <!--ArrayList<Integer> searchFirstIndexByUFDId(@Param("ufdId") int ufdId);-->
+    <select id="searchFirstIndexByUFDId" resultType="java.lang.Integer">
+        select f_disk_id from disk_first_index where ufd_id = #{ufdId}
+    </select>
+
+    <!--int updateSecondIndexByFId(ArrayList<DiskSecondIndex> diskSecondIndices)-->
+    <update id="updateSecondIndexByFId" parameterType="java.util.ArrayList">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update disk_second_index
+            <set>
+                <if test="item.content!=null and item.content!=''">
+                    content = #{item.content},
+                </if>
+                <if test="item.isUseFlag!=-1">
+                    is_use_flag = #{item.isUseFlag},
+                </if>
+                <if test="item.fileOrder!=0">
+                    file_order = #{item.fileOrder}
+                </if>
+            </set>
+            where f_disk_id = #{item.fDiskId}
+        </foreach>
+    </update>
+
+    <!--int deleteFirstIndexTable(ArrayList<Integer> firstIndices);-->
+    <delete id="deleteFirstIndexTable" parameterType="java.util.ArrayList">
+        delete from disk_first_index where f_disk_id in
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <!--ArrayList<DiskSecondIndex> showBitmap();-->
+    <select id="showBitmap" resultType="DiskSecondIndex">
+        select s_disk_id, is_use_flag from disk_second_index
+    </select>
+</mapper>

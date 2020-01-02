@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <settings>
+        <!--数据库字段以驼峰命名的方式匹配-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <!--给javabean起别名-->
+    <typeAliases>
+        <package name="com.example.os_be.domain.user_management"/>
+        <package name="com.example.os_be.domain.directory_management"/>
+        <package name="com.example.os_be.domain.disk_management"/>
+    </typeAliases>
+
+</configuration>
